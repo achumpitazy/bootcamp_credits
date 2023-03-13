@@ -32,16 +32,32 @@ public class CreditServiceImpl implements CreditService{
 	@Autowired
 	TransactionsRestClient transactionRestClient;
 	
+	/**
+	 * Obtiene todos los créditos
+	 * @return Flux<Credit>
+	 */
 	@Override
 	public Flux<Credit> getAll() {
 		return creditRepository.findAll();
 	}
 
+	/**
+	 * Obtiene el crédito por su id 
+	 * @param creditId
+	 * @return Mono<Credit>
+	 */
 	@Override
 	public Mono<Credit> getCreditById(String creditId) {
 		return creditRepository.findById(creditId);
 	}
 
+	/**
+	 * Registro de un crédito personal
+	 * Se obtiene el cliente getPersonById()
+	 * Se valida si ya tiene un crédito getCreditByIdCustomerPerson(), si no tiene se crea el crédito personal saveNewAccount()
+	 * @param creditRequestDto
+	 * @return Mono<CreditResponseDto>
+	 */
 	@Override
 	public Mono<CreditResponseDto> createCreditPerson(CreditRequestDto creditRequestDto) {
 		Credit credit = new Credit(null,creditRequestDto.getCustomerId(), 3, "CRED_PERSONAL"
@@ -54,6 +70,13 @@ public class CreditServiceImpl implements CreditService{
 		}).defaultIfEmpty(new CreditResponseDto(null, "Client does not exist"));
 	}
 	
+	/**
+	 * Registro de un crédito empresarial
+	 * Se obtiene el client getCompanyById()
+	 * Se crea el crédito empresarial saveNewAccount()
+	 * @param creditRequestDto
+	 * @return Mono<CreditResponseDto>
+	 */
 	@Override
 	public Mono<CreditResponseDto> createCreditCompany(CreditRequestDto creditRequestDto) {
 		Credit credit = new Credit(null,creditRequestDto.getCustomerId(), 4, "CRED_EMPRESARIAL"
@@ -65,6 +88,12 @@ public class CreditServiceImpl implements CreditService{
 		
 	}
 
+	/**
+	 * Actualización de un crédito
+	 * Se obtiene el crédito por el id findById() y se actualiza save()
+	 * @param creditRequestDto
+	 * @return Mono<Credit>
+	 */
 	@Override
 	public Mono<Credit> updateCredit(CreditRequestDto creditRequestDto) {
 		return creditRepository.findById(creditRequestDto.getId())
@@ -78,6 +107,12 @@ public class CreditServiceImpl implements CreditService{
         });
 	}
 
+	/**
+	 * Eliminación de un crédito
+	 * Se obtiene el crédito por el id findById() y se elimina deleteById()
+	 * @param creditId
+	 * @return Mono<Message>
+	 */
 	@Override
 	public Mono<Message> deleteCredit(String creditId) {
 		Message message = new Message("Credit does not exist");
@@ -88,6 +123,14 @@ public class CreditServiceImpl implements CreditService{
         }).defaultIfEmpty(message);
 	}
 
+	/**
+	 * Pago de un crédito personal o empresarial
+	 * Se obtiene el crédito por el id findById()
+	 * Se valida que el pago no exceda el limite del crédito
+	 * Se actualiza el crédito y se registra la transacción updateAccount()
+	 * @param creditRequestDto
+	 * @return Mono<CreditResponseDto>
+	 */
 	@Override
 	public Mono<CreditResponseDto> payCredit(CreditRequestDto creditRequestDto) {
 		return creditRepository.findById(creditRequestDto.getId()).flatMap(uCredit -> {
@@ -101,33 +144,64 @@ public class CreditServiceImpl implements CreditService{
 		}).defaultIfEmpty(new CreditResponseDto(null, "Credit does not exist"));
 	}
 	
+	/**
+	 * Obtiene los créditos por el id del cliente
+	 * @param customerId
+	 * @return Flux<Credit>
+	 */
 	@Override
 	public Flux<Credit> getAllCreditXCustomerId(String customerId) {
 		return creditRepository.findAll()
 				.filter(c -> c.getCustomerId().equals(customerId));
 	}
 
+	/**
+	 * Se guarda un crédito save()
+	 * @param credit
+	 * @param message
+	 * @return Mono<CreditResponseDto>
+	 */
 	public Mono<CreditResponseDto> saveNewAccount(Credit credit, String message) {
 		return creditRepository.save(credit).flatMap(x -> {
 			return Mono.just(new CreditResponseDto(credit, message));
 		});
 	}
 	
+	/**
+	 * Se guarda un crédito save() y se registra la transacción registerTransaction()
+	 * @param credit
+	 * @param amount
+	 * @param typeTransaction
+	 * @return Mono<CreditResponseDto>
+	 */
 	public Mono<CreditResponseDto> updateAccount(Credit credit, Double amount, String typeTransaction) {
 		return creditRepository.save(credit).flatMap(x -> {
 			return registerTransaction(credit, amount, typeTransaction);
 		});
 	}
 	
+	/**
+	 * Se obtiene los créditos según el cliente, tipo de transacción y tipo de cliente
+	 * @param customerId
+	 * @param type
+	 * @param customer
+	 * @return Mono<Credit>
+	 */
 	public Mono<Credit> getCreditByIdCustomerPerson(String customerId, String type, String customer) {
-		Flux<Credit> r = creditRepository.findAll()
+		return creditRepository.findAll()
 				.filter(c -> c.getCustomerId().equals(customerId))
 				.filter(c -> c.getDescripTypeAccount().equals("CRED_PERSONAL"))
-				.filter(c -> c.getTypeCustomer().equals(customer));
-		Mono<Credit> m= r.next();
-		return m;
+				.filter(c -> c.getTypeCustomer().equals(customer))
+				.next();
 	}
 	
+	/**
+	 * Se registra una transacción createTransaction()
+	 * @param credit
+	 * @param amount
+	 * @param typeTransaction
+	 * @return Mono<CreditResponseDto>
+	 */
 	private Mono<CreditResponseDto> registerTransaction(Credit credit, Double amount, String typeTransaction){
 		Transaction transaction = new Transaction();
 		transaction.setCustomerId(credit.getCustomerId());

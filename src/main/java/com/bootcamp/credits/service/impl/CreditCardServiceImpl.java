@@ -30,16 +30,32 @@ public class CreditCardServiceImpl implements CreditCardService{
 	@Autowired
 	TransactionsRestClient transactionRestClient;
 	
+	/**
+	 * Obtiene todas las tarjetas de crédito
+	 * @return Flux<CreditCard>
+	 */
 	@Override
 	public Flux<CreditCard> getAll() {
 		return creditCardRepository.findAll();
 	}
 
+	/**
+	 * Obtiene una tarjeta de crédito por su id 
+	 * @param creditId
+	 * @return Mono<CreditCard>
+	 */
 	@Override
 	public Mono<CreditCard> getCreditCardById(String creditId) {
 		return creditCardRepository.findById(creditId);
 	}
 
+	/**
+	 * Registro de una tarjeta de crédito personal
+	 * Se obtiene el cliente getPersonById()
+	 * Se crea la tarjeta de crédito personal saveNewAccount()
+	 * @param creditCardRequestDto
+	 * @return Mono<CreditCardResponseDto>
+	 */
 	@Override
 	public Mono<CreditCardResponseDto> createCreditCardPerson(CreditCardRequestDto creditCardRequestDto) {
 		CreditCard creditCard = new CreditCard(null,creditCardRequestDto.getCustomerId(), 5, "TAR_CRED_PERSONAL", creditCardRequestDto.getCreditAmount()
@@ -50,6 +66,13 @@ public class CreditCardServiceImpl implements CreditCardService{
 		}).defaultIfEmpty(new CreditCardResponseDto(null, "Client does not exist"));
 	}
 	
+	/**
+	 * Registro de una tarjeta de crédito empresarial
+	 * Se obtiene el cliente getPersonById()
+	 * Se crea la tarjeta de crédito empresarial saveNewAccount()
+	 * @param creditCardRequestDto
+	 * @return Mono<CreditCardResponseDto>
+	 */
 	@Override
 	public Mono<CreditCardResponseDto> createCreditCardCompany(CreditCardRequestDto creditCardRequestDto) {
 		CreditCard creditCard = new CreditCard(null,creditCardRequestDto.getCustomerId(), 6, "TAR_CRED_EMPRESARIAL", creditCardRequestDto.getCreditAmount()
@@ -60,6 +83,12 @@ public class CreditCardServiceImpl implements CreditCardService{
 		}).defaultIfEmpty(new CreditCardResponseDto(null, "Client does not exist"));
 	}
 
+	/**
+	 * Actualización de una tarjeta de crédito
+	 * Se obtiene el crédito por el id findById() y se actualiza save()
+	 * @param creditCardRequestDto
+	 * @return Mono<CreditCard>
+	 */
 	@Override
 	public Mono<CreditCard> updateCreditCard(CreditCardRequestDto creditCardRequestDto) {
 		return creditCardRepository.findById(creditCardRequestDto.getId())
@@ -74,6 +103,12 @@ public class CreditCardServiceImpl implements CreditCardService{
         });
 	}
 
+	/**
+	 * Eliminación de una tarjeta de crédito
+	 * Se obtiene el crédito por el id findById() y se elimina deleteById()
+	 * @param creditId
+	 * @return Mono<Message>
+	 */
 	@Override
 	public Mono<Message> deleteCreditCard(String creditId) {
 		Message message = new Message("CreditCard does not exist");
@@ -84,6 +119,14 @@ public class CreditCardServiceImpl implements CreditCardService{
         }).defaultIfEmpty(message);
 	}
 	
+	/**
+	 * Pago de una tarjeta de crédito
+	 * Se obtiene el crédito por el id findById()
+	 * Se valida que el pago no exceda el limite de la tarjeta de crédito
+	 * Se actualiza la tarjeta de crédito y se registra la transacción updateAccount()
+	 * @param creditCardRequestDto
+	 * @return Mono<CreditCardResponseDto>
+	 */
 	@Override
 	public Mono<CreditCardResponseDto> payCreditCard(CreditCardRequestDto creditRequestDto) {
 		return creditCardRepository.findById(creditRequestDto.getId()).flatMap(uCredit -> {
@@ -97,6 +140,14 @@ public class CreditCardServiceImpl implements CreditCardService{
 		}).defaultIfEmpty(new CreditCardResponseDto(null, "CreditCard does not exist"));
 	}
 
+	/**
+	 * Consumo de una tarjeta de crédito
+	 * Se obtiene el crédito por el id findById()
+	 * Se valida que el Retiro no exceda el saldo de la tarjeta de crédito
+	 * Se actualiza la tarjeta de crédito y se registra la transacción updateAccount()
+	 * @param creditCardRequestDto
+	 * @return Mono<CreditCardResponseDto>
+	 */
 	@Override
 	public Mono<CreditCardResponseDto> consumeCreditCard(CreditCardRequestDto creditRequestDto) {
 		return creditCardRepository.findById(creditRequestDto.getId()).flatMap(uCredit -> {
@@ -110,24 +161,49 @@ public class CreditCardServiceImpl implements CreditCardService{
 		}).defaultIfEmpty(new CreditCardResponseDto(null, "CreditCard does not exist"));
 	}
 	
+	/**
+	 * Obtiene las tarjetas de crédito por el id del cliente
+	 * @param customerId
+	 * @return Flux<CreditCard>
+	 */
 	@Override
 	public Flux<CreditCard> getAllCreditCardXCustomerId(String customerId) {
 		return creditCardRepository.findAll()
 				.filter(c -> c.getCustomerId().equals(customerId));
 	}
 	
+	/**
+	 * Guarda una tarjeta de crédito save()
+	 * @param creditCard
+	 * @param message
+	 * @return Mono<CreditCardResponseDto>
+	 */
 	private Mono<CreditCardResponseDto> saveNewAccount(CreditCard creditCard, String message) {
 		return creditCardRepository.save(creditCard).flatMap(x -> {
 			return Mono.just(new CreditCardResponseDto(creditCard, message));
 		});
 	}
 	
+	/**
+	 * Guarda una tarjeta de crédito save() y registra una transacción registerTransaction()
+	 * @param creditCard
+	 * @param amount
+	 * @param typeTransaction
+	 * @return Mono<CreditCardResponseDto>
+	 */
 	private Mono<CreditCardResponseDto> updateAccount(CreditCard creditCard, Double amount, String typeTransaction) {
 		return creditCardRepository.save(creditCard).flatMap(x -> {
 			return registerTransaction(creditCard, amount, typeTransaction);
 		});
 	}
 	
+	/**
+	 * Registra una transacción createTransaction() 
+	 * @param creditCard
+	 * @param amount
+	 * @param typeTransaction
+	 * @return Mono<CreditCardResponseDto>
+	 */
 	private Mono<CreditCardResponseDto> registerTransaction(CreditCard creditCard, Double amount, String typeTransaction){
 		Transaction transaction = new Transaction();
 		transaction.setCustomerId(creditCard.getCustomerId());
