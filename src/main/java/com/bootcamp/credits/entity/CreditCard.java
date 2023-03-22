@@ -1,13 +1,13 @@
 package com.bootcamp.credits.entity;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import jakarta.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -27,8 +27,7 @@ public class CreditCard {
 	private Double creditAmount;
 	@NotEmpty
 	private Double existingAmount;
-	@NotEmpty
-	private Date creditDate;
+	private LocalDateTime creditDate;
 	@NotEmpty
 	private String numberCard;
 	private String typeCustomer;

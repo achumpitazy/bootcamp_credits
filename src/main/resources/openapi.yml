@@ -1,0 +1,432 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI credits
+  version: v0
+servers:
+  - url: http://localhost:8084/
+    description: Generated server url
+paths:
+  /credit:
+    get:
+      tags:
+        - credit-controller
+      operationId: getAll
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Credit'
+    put:
+      tags:
+        - credit-controller
+      operationId: updateCredit
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditRequestDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Credit'
+  /creditcard:
+    get:
+      tags:
+        - credit-card-controller
+      operationId: getAll_1
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CreditCard'
+    put:
+      tags:
+        - credit-card-controller
+      operationId: updateCCreditCard
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditCardRequestDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CreditCard'
+  /creditcard/person:
+    post:
+      tags:
+        - credit-card-controller
+      operationId: createCreditCardPerson
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditCardRequestDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CreditCardResponseDto'
+  /creditcard/pay:
+    post:
+      tags:
+        - credit-card-controller
+      operationId: payCreditCard
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditCardRequestDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CreditCardResponseDto'
+  /creditcard/consume:
+    post:
+      tags:
+        - credit-card-controller
+      operationId: consumeCreditCard
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditCardRequestDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CreditCardResponseDto'
+  /creditcard/company:
+    post:
+      tags:
+        - credit-card-controller
+      operationId: createCreditCardCompany
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditCardRequestDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CreditCardResponseDto'
+  /credit/person:
+    post:
+      tags:
+        - credit-controller
+      operationId: createCreditPerson
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditRequestDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CreditResponseDto'
+  /credit/pay:
+    post:
+      tags:
+        - credit-controller
+      operationId: payCredit
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditRequestDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CreditResponseDto'
+  /credit/company:
+    post:
+      tags:
+        - credit-controller
+      operationId: createCreditCompany
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreditRequestDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CreditResponseDto'
+  /creditcard/{creditId}:
+    get:
+      tags:
+        - credit-card-controller
+      operationId: getCreditCardById
+      parameters:
+        - name: creditId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CreditCard'
+    delete:
+      tags:
+        - credit-card-controller
+      operationId: deleteCreditCard
+      parameters:
+        - name: creditId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Message'
+  /creditcard/consult/{customerId}:
+    get:
+      tags:
+        - credit-card-controller
+      operationId: getAllCreditCardXCustomerId
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CreditCard'
+  /credit/{creditId}:
+    get:
+      tags:
+        - credit-controller
+      operationId: getCreditById
+      parameters:
+        - name: creditId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Credit'
+    delete:
+      tags:
+        - credit-controller
+      operationId: deleteCredit
+      parameters:
+        - name: creditId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Message'
+  /credit/consult/{customerId}:
+    get:
+      tags:
+        - credit-controller
+      operationId: getAllCreditXCustomerId
+      parameters:
+        - name: customerId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Credit'
+components:
+  schemas:
+    CreditRequestDto:
+      type: object
+      properties:
+        id:
+          type: string
+        customerId:
+          type: string
+        typeAccount:
+          type: integer
+          format: int32
+        descripTypeAccount:
+          type: string
+        creditAmount:
+          type: number
+          format: double
+        existingAmount:
+          type: number
+          format: double
+        creditDate:
+          type: string
+          format: date-time
+        typeCustomer:
+          type: string
+        amount:
+          type: number
+          format: double
+    Credit:
+      required:
+        - creditAmount
+        - customerId
+        - existingAmount
+      type: object
+      properties:
+        id:
+          type: string
+        customerId:
+          type: string
+        descripTypeAccount:
+          type: string
+        creditAmount:
+          type: number
+          format: double
+        existingAmount:
+          type: number
+          format: double
+        creditDate:
+          type: string
+          format: date-time
+        typeCustomer:
+          type: string
+    CreditCardRequestDto:
+      type: object
+      properties:
+        id:
+          type: string
+        customerId:
+          type: string
+        typeAccount:
+          type: integer
+          format: int32
+        descripTypeAccount:
+          type: string
+        creditAmount:
+          type: number
+          format: double
+        existingAmount:
+          type: number
+          format: double
+        creditDate:
+          type: string
+          format: date-time
+        numberCard:
+          type: string
+        typeCustomer:
+          type: string
+        amount:
+          type: number
+          format: double
+    CreditCard:
+      required:
+        - creditAmount
+        - customerId
+        - existingAmount
+        - numberCard
+      type: object
+      properties:
+        id:
+          type: string
+        customerId:
+          type: string
+        descripTypeAccount:
+          type: string
+        creditAmount:
+          type: number
+          format: double
+        existingAmount:
+          type: number
+          format: double
+        creditDate:
+          type: string
+          format: date-time
+        numberCard:
+          type: string
+        typeCustomer:
+          type: string
+    CreditCardResponseDto:
+      type: object
+      properties:
+        creditcard:
+          $ref: '#/components/schemas/CreditCard'
+        message:
+          type: string
+    CreditResponseDto:
+      type: object
+      properties:
+        credit:
+          $ref: '#/components/schemas/Credit'
+        message:
+          type: string
+    Message:
+      type: object
+      properties:
+        message:
+          type: string

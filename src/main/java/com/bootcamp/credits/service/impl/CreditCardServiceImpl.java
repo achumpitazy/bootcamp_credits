@@ -1,6 +1,6 @@
 package com.bootcamp.credits.service.impl;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -59,7 +59,7 @@ public class CreditCardServiceImpl implements CreditCardService{
 	@Override
 	public Mono<CreditCardResponseDto> createCreditCardPerson(CreditCardRequestDto creditCardRequestDto) {
 		CreditCard creditCard = new CreditCard(null,creditCardRequestDto.getCustomerId(), 5, "TAR_CRED_PERSONAL", creditCardRequestDto.getCreditAmount()
-				, creditCardRequestDto.getCreditAmount(), creditCardRequestDto.getCreditDate(), creditCardRequestDto.getNumberCard(), null);
+				, creditCardRequestDto.getCreditAmount(), LocalDateTime.now(), creditCardRequestDto.getNumberCard(), null);
 		return customerRestClient.getPersonById(creditCardRequestDto.getCustomerId()).flatMap(c ->{
 			creditCard.setTypeCustomer(c.getTypeCustomer());
 			return saveNewAccount(creditCard, "CreditCard created successfully");
@@ -76,7 +76,7 @@ public class CreditCardServiceImpl implements CreditCardService{
 	@Override
 	public Mono<CreditCardResponseDto> createCreditCardCompany(CreditCardRequestDto creditCardRequestDto) {
 		CreditCard creditCard = new CreditCard(null,creditCardRequestDto.getCustomerId(), 6, "TAR_CRED_EMPRESARIAL", creditCardRequestDto.getCreditAmount()
-				, creditCardRequestDto.getCreditAmount(), creditCardRequestDto.getCreditDate(), creditCardRequestDto.getNumberCard(), null);
+				, creditCardRequestDto.getCreditAmount(), LocalDateTime.now(), creditCardRequestDto.getNumberCard(), null);
 		return customerRestClient.getCompanyById(creditCardRequestDto.getCustomerId()).flatMap(c ->{
 			creditCard.setTypeCustomer(c.getTypeCustomer());
 			return saveNewAccount(creditCard, "CreditCard created successfully");
@@ -211,8 +211,9 @@ public class CreditCardServiceImpl implements CreditCardService{
 		transaction.setProductType(creditCard.getDescripTypeAccount());
 		transaction.setTransactionType(typeTransaction);
 		transaction.setAmount(amount);
-		transaction.setTransactionDate(new Date());
+		transaction.setTransactionDate(LocalDateTime.now());
 		transaction.setCustomerType(creditCard.getTypeCustomer());
+		transaction.setBalance(creditCard.getExistingAmount());
 		return transactionRestClient.createTransaction(transaction).flatMap(t -> {
 			return Mono.just(new CreditCardResponseDto(creditCard, "Successful transaction"));
         });

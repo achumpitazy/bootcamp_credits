@@ -1,12 +1,12 @@
 package com.bootcamp.credits.service.impl;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.bootcamp.credits.clients.TransactionsRestClient;
 import com.bootcamp.credits.clients.CustomerRestClient;
+import com.bootcamp.credits.clients.TransactionsRestClient;
 import com.bootcamp.credits.dto.CreditRequestDto;
 import com.bootcamp.credits.dto.CreditResponseDto;
 import com.bootcamp.credits.dto.Message;
@@ -61,7 +61,7 @@ public class CreditServiceImpl implements CreditService{
 	@Override
 	public Mono<CreditResponseDto> createCreditPerson(CreditRequestDto creditRequestDto) {
 		Credit credit = new Credit(null,creditRequestDto.getCustomerId(), 3, "CRED_PERSONAL"
-				, creditRequestDto.getCreditAmount() , 0.0, creditRequestDto.getCreditDate(), creditRequestDto.getTypeCustomer());
+				, creditRequestDto.getCreditAmount() , 0.0, LocalDateTime.now(), creditRequestDto.getTypeCustomer());
 		return customerRestClient.getPersonById(creditRequestDto.getCustomerId()).flatMap(c ->{
 			credit.setTypeCustomer(c.getTypeCustomer());
 			return getCreditByIdCustomerPerson(creditRequestDto.getCustomerId(),credit.getDescripTypeAccount(),c.getTypeCustomer()).flatMap(v -> {
@@ -80,7 +80,7 @@ public class CreditServiceImpl implements CreditService{
 	@Override
 	public Mono<CreditResponseDto> createCreditCompany(CreditRequestDto creditRequestDto) {
 		Credit credit = new Credit(null,creditRequestDto.getCustomerId(), 4, "CRED_EMPRESARIAL"
-				, creditRequestDto.getCreditAmount() , 0.0, creditRequestDto.getCreditDate(), creditRequestDto.getTypeCustomer());
+				, creditRequestDto.getCreditAmount() , 0.0, LocalDateTime.now(), creditRequestDto.getTypeCustomer());
 		return customerRestClient.getCompanyById(creditRequestDto.getCustomerId()).flatMap(c ->{
 			credit.setTypeCustomer(c.getTypeCustomer());
 			return saveNewAccount(credit, "Credit created successfully");
@@ -209,8 +209,9 @@ public class CreditServiceImpl implements CreditService{
 		transaction.setProductType(credit.getDescripTypeAccount());
 		transaction.setTransactionType(typeTransaction);
 		transaction.setAmount(amount);
-		transaction.setTransactionDate(new Date());
+		transaction.setTransactionDate(LocalDateTime.now());
 		transaction.setCustomerType(credit.getTypeCustomer());
+		transaction.setBalance(credit.getExistingAmount());
 		return transactionRestClient.createTransaction(transaction).flatMap(t -> {
 			return Mono.just(new CreditResponseDto(credit, "Successful transaction"));
         });

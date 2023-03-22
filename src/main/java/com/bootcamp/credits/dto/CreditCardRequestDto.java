@@ -1,6 +1,6 @@
 package com.bootcamp.credits.dto;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import lombok.Data;
 
@@ -12,7 +12,7 @@ public class CreditCardRequestDto {
 	private String descripTypeAccount;
 	private Double creditAmount;
 	private Double existingAmount;
-	private Date creditDate;
+	private LocalDateTime creditDate;
 	private String numberCard;
 	private String typeCustomer;
 	private Double amount;
